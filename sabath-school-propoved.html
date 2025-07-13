@@ -1,0 +1,63 @@
+<script src="https://gist.github.com/EmORz/59e684aaf9ea1591a585a584c183bb13.js"></script>
+
+
+<div class="tts-controls">
+  <button id="ttsStartButton">▶ Старт</button>
+  <button id="ttsPauseButton" disabled>⏸ Пауза</button>
+  <button id="ttsStopButton" disabled>⏹ Стоп</button>
+</div>
+
+<script>
+  const startBtn = document.getElementById('ttsStartButton');
+  const pauseBtn = document.getElementById('ttsPauseButton');
+  const stopBtn = document.getElementById('ttsStopButton');
+  
+  let utterance = null;
+  let isPaused = false;
+
+  // Стартира/продължава четенето
+  startBtn.addEventListener('click', () => {
+    if (!utterance) {
+      const postContent = document.querySelector('.post-body') || document.body;
+      const text = postContent.innerText;
+      utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'bg-BG';
+      
+      utterance.onend = () => {
+        resetTTS();
+      };
+    }
+    
+    if (isPaused) {
+      window.speechSynthesis.resume();
+      isPaused = false;
+    } else {
+      window.speechSynthesis.speak(utterance);
+    }
+    
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+  });
+
+  // Паузира четенето
+  pauseBtn.addEventListener('click', () => {
+    window.speechSynthesis.pause();
+    isPaused = true;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+  });
+
+  // Спира и нулира четенето
+  stopBtn.addEventListener('click', resetTTS);
+
+  // Нулира TTS
+  function resetTTS() {
+    window.speechSynthesis.cancel();
+    utterance = null;
+    isPaused = false;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    stopBtn.disabled = true;
+  }
+</script>
